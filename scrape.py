@@ -1,33 +1,32 @@
 import requests
-import csv
-from datetime import datetime
 import os
+import json
+from datetime import datetime
 
 URL = "https://petition.parliament.uk/petitions/722903.json"
-CSV_FILE = "signatures.csv"
+DATA_DIR = "data"
 
-def get_signature_count():
+def fetch_petition_json():
     try:
         response = requests.get(URL)
-        data = response.json()
-        count = data["data"]["attributes"]["signature_count"]
-        return int(count)
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
-        print("❌ Failed to parse JSON:", e)
+        print("❌ Error fetching JSON:", e)
         return None
 
-def log_signature_count():
-    count = get_signature_count()
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    if count is not None:
-        print(f"[{timestamp}] ✅ Signatures: {count}")
-        exists = os.path.isfile(CSV_FILE)
-        with open(CSV_FILE, "a", newline="") as f:
-            writer = csv.writer(f)
-            if not exists:
-                writer.writerow(["Timestamp", "Signatures"])
-            writer.writerow([timestamp, count])
-    else:
-        print(f"[{timestamp}] ❌ Failed to get count.")
+def save_snapshot(data):
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
+    timestamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    filename = os.path.join(DATA_DIR, f"{timestamp}.json")
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=2)
+    print(f"✅ Saved snapshot to {filename}")
 
-log_signature_count()
+def main():
+    data = fetch_petition_json()
+    if data:
+        save_snapshot(data)
+
+main()
