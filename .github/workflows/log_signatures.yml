@@ -28,11 +28,7 @@ jobs:
     - name: Commit log file
       run: |
         git config --global user.name "github-actions"
-        git config --global user.email "github-actions@users.noreply.github.com"
-        if [ -f signatures.csv ]; then
-           git add signatures.csv
-           git commit -m "Update log $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-           git push
-        else
-           echo "signatures.csv not found, skipping commit."
-         fi
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git add data/
+          git commit -m "Add data snapshot $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
