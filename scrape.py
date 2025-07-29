@@ -9,12 +9,16 @@ CSV_FILE = "signatures.csv"
 
 def get_signature_count():
     try:
-        response = requests.get(URL)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        response = requests.get(URL, headers=headers)
         response.raise_for_status()
+
         soup = BeautifulSoup(response.text, "html.parser")
         count_element = soup.find("span", class_="signature-count-number")
         if count_element:
-            print(f"Found count element: {count_element.text}")
+            print(f"✅ Found count element: {count_element.text}")
             return int(count_element.text.replace(",", ""))
         else:
             print("❌ Could not find the signature-count-number element.")
